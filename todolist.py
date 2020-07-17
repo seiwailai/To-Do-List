@@ -20,8 +20,6 @@ class ToDoList():
             self.todolist = []
             print(f"Created new datafile named {datafile}")
         
-        
-        
     def addtask(self, task, deadline, label=[]):
         '''Create to-do object containing several attributes
         and append to our existing to-do list'''
