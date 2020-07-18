@@ -5,10 +5,12 @@ class Main():
     def __init__(self):
         self.todolist = ToDoList("todolist")
         self.options = {
-            '1': self.display,
-            '2': self.addtask,
-            '3': self.removetask,
-            '4': self.quit
+            '1': self.displayundone,
+            '2': self.displaydone,
+            '3': self.addtask,
+            '4': self.removetask,
+            '5': self.completetask,
+            '6': self.quit
             }
     
     def displaymenu(self):
@@ -18,61 +20,95 @@ class Main():
 
         To-Do List Menu
 
-        1. Display all tasks
-        2. Add new task
-        3. Remove task
-        4. Quit
+        1. Display undone tasks
+        2. Display done tasks
+        3. Add new task
+        4. Remove task
+        5. Complete task
+        6. Quit
         ''')
     
     def run(self):
         '''Keep program in running'''
         while True:
             self.displaymenu()
-            choice = input('Enter you choice: ')
+            choice = input('\nEnter you choice: ')
             option = self.options.get(choice)
             try:
                 option()
             except KeyError:
-                print('Please enter valid choice')
+                print('Please enter valid choice!')
             except TypeError:
-                print('Please enter valid choice in numeric')
+                print('Please enter valid choice in numeric!')
 
-    def display(self):
-        '''Display the tasks if there is any'''
-        if len(self.todolist.todolist) > 0:
-            self.todolist.display()
-        else:
-            print('There is no any tasks at the moment.')
+    def displayundone(self):
+        '''Display the incompleted tasks if there is any'''
+        try:
+            self.todolist.display('Undone')
+        except Exception:
+            print('There is no any incompleted tasks at the moment.')
+    
+    def displaydone(self):
+        '''Display the completed tasks if there is any'''
+        try:
+            self.todolist.display('Done')
+        except Exception:
+            print('There is no any completed tasks at the moment.')
     
     def addtask(self):
         '''Add task into to do list and identify potential
         value error caused by invalid deadline input'''
-        task = input('Enter task: ')
+        task = input('\nEnter task: ')
         deadline = input('Enter task deadline: ')
         label = input('Enter label for this tasks: ')
         label = label.split(',')
+        label = [labels.strip(' ') for labels in label]
         try:
             self.todolist.addtask(task, deadline, label)
         except ValueError:
             print('Failed to add task! Please enter valid date.')
         else:
-            print('Successfully add task')
+            print('Successfully add task.')
             self.todolist.save()
     
     def removetask(self):
         '''Remove task using index and detect invalid index input'''
-        if len(self.todolist.todolist) > 0:
-            self.todolist.display()
+        try:
+            self.todolist.display('Undone')
+        except Exception:
+            print('There is no any incompleted tasks at the moment.')
+        else:
             delchoice = input('\nEnter task to be removed: ')
             try:
                 self.todolist.removetask(int(delchoice))
             except IndexError:
-                print('Please enter valid task in numeric')
+                print('Please enter valid task!')
+                self.removetask()
+            except ValueError:
+                print('Please enter valid task in numeric!')
+                self.removetask()
             else:
                 self.todolist.save()
+        
+    def completetask(self):
+        '''Mark completed task to Done by index'''
+        try:
+            self.todolist.display('Undone')
+        except Exception:
+            print('There is no any completed tasks at the moment.')
         else:
-            print('There is no any tasks at the moment.')
-    
+            taskcompleted = input('\nPlease enter completed tasks: ')
+            try:
+                self.todolist.completetask(int(taskcompleted))
+            except IndexError:
+                print('Please enter valid task!')
+                self.completetask()
+            except ValueError:
+                print('Please enter valid task in numeric!')
+                self.completetask()
+            else:
+                self.todolist.save()
+            
     def quit(self):
         '''Serialize file into pickle and quit'''
         self.todolist.save()
